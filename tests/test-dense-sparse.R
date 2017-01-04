@@ -1,11 +1,11 @@
 library(testthat)
 library(slam)
 
-
 source("R/f_write.libsvm.r")
 source("R/f_read.libsvm.r")
 source("R/write-sparse-triplets-svm.R")
 
+#================read and write, using dense matrix in R================
 input_file = 'data/example.csv'
 output_file = 'tests/test_dense.txt'
 label_index = 1
@@ -21,7 +21,7 @@ expect_equal(sum(dense - read_test), 0)
 expect_equal(dim(read_test), dim(dense))             
 
 
-#===================sparse matrix==================
+#===================write from sparse matrix, read back to dense matrix==================
 # using dense as defined in tests/test_dense_sparse.R
 stm <- as.simple_triplet_matrix(dense[ , -1])
 y <- dense[ ,1]
