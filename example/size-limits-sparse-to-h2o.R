@@ -44,7 +44,7 @@ nyt_M <- nyt2 %>%
 rm(nyt, nyt2); gc()
 
 #================testing length of converting and writing to libsvm format=================
-nyt_samp <- nyt_M[1:20000, ]
+nyt_samp <- nyt_M[1:1000, ]
 
 system.time({
   nyt_svm <- calc_stm_svm(nyt_samp)
@@ -54,18 +54,8 @@ system.time({
 # 5000 rows in 14  seconds
 # 10000 rows in 59 seconds
 # 20000 rows in 217 seconds 
-# 30000 rows in
+# 30000 rows in 475 seconds
 
-
-system.time({
-  nyt_svm <- calc_stm_svm(nyt_samp, parallel = TRUE)
-})
-# Parallel version has more overhead and is slow at first but faster for 20000 rows or more
-# 1000 rows in 4 seconds
-# 5000 rows in 24 seconds
-# 10000 rows in 74 seconds
-# 20000 rows in 
-# 30000 rows in
 
 
 # Import to H2O
