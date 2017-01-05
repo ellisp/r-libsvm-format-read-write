@@ -44,19 +44,30 @@ nyt_M <- nyt2 %>%
 rm(nyt, nyt2); gc()
 
 #================testing length of converting and writing to libsvm format=================
-nyt_samp <- nyt_M[1:1000, ]
+nyt_samp <- nyt_M[1:30000, ]
 
+# How long does it take just to create the character vector that needs to be written to disk?
 system.time({
   nyt_svm <- calc_stm_svm(nyt_samp)
 })
-# Serial version doesn't scale up well:
+# Doesn't scale up well:
 # 1000 rows in 1 second
 # 5000 rows in 14  seconds
 # 10000 rows in 59 seconds
 # 20000 rows in 217 seconds 
 # 30000 rows in 475 seconds
 
-
+# How long does the whole process, including writing to disk, take?
+# Turns out to be basically the same.  So the thing to optimise
+# is the calc_stm_svm function.
+system.time({
+  write_stm_svm(nyt_samp, file = tempfile())
+})
+# 1000 rows in 1 second
+# 5000 rows in 15 seconds
+# 10000 rows in 56 seconds
+# 20000 rows in 209 seconds
+# 30000 rows in 469 seconds
 
 # Import to H2O
 h2o.init(nthreads = -1, max_mem_size = "10G")

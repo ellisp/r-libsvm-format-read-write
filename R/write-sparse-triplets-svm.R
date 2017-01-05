@@ -3,7 +3,7 @@
 # author Peter Ellis
 # returns a character vector of length n=nrow(stm)
 #' @import slam
-calc_stm_svm <- function(stm, y = rep(1, nrow(stm))){
+calc_stm_svm <- function(stm, y){
   # returns a character vector of length y ready for writing in svm format
   if(!"simple_triplet_matrix" %in% class(stm)){
     stop("stm must be a simple triple matrix")
@@ -13,9 +13,9 @@ calc_stm_svm <- function(stm, y = rep(1, nrow(stm))){
   }
   n <- length(y)
   out <- character(n)
-    foreach(k = 1:n, .combine = c) %do% {
+    for(k in 1:n) {
       whichi <- stm$i==k
-      out[i] <- paste(y[k], paste(paste(stm$j[whichi], stm$v[whichi], sep=":"), collapse = " "))
+      out[k] <- paste(y[k], paste(paste(stm$j[whichi], stm$v[whichi], sep=":"), collapse = " "))
   }
   
   return(out)
@@ -28,7 +28,7 @@ calc_stm_svm <- function(stm, y = rep(1, nrow(stm))){
 #' @param file file to write to.
 #' @import slam
 #' @author Peter Ellis
-write_stm_svm <- function(stm, y, file){
+write_stm_svm <- function(stm, y = rep(1, nrow(stm)), file){
   out <- calc_stm_svm(stm, y)  
   writeLines(out, con = file)
 }
