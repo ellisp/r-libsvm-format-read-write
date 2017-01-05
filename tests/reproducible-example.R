@@ -2,7 +2,7 @@ library(microbenchmark)
 
 # create an example object like a simple_triple_matrix
 # number of rows and columns in sparse matrix:
-n <- 2000 # real number is about 300,000
+n <- 10 # real number is about 300,000
 ncols <- 1000 # real number is about 80,000
 
 # number of non-zero values, about 10 per row:
@@ -16,7 +16,7 @@ stm <- data.frame(
 
 # It seems to save about 3% of time to have i, j and v objects in their own right
 i <- stm$i
-j <- stm$k
+j <- stm$j
 v <- stm$v
 
 expensive <- function(){
@@ -26,6 +26,8 @@ expensive <- function(){
   paste(paste(j[whichi], v[whichi], sep = ":"), collapse = " ")
 })
 }
+
+expensive()
 
 microbenchmark(expensive())
 

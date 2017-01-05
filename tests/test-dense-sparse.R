@@ -1,5 +1,6 @@
 library(testthat)
 library(slam)
+library(data.table)
 
 source("R/f_write.libsvm.r")
 source("R/f_read.libsvm.r")

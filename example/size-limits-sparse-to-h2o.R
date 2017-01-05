@@ -1,8 +1,8 @@
+library(microbenchmark)
 library(data.table)
 library(tidyverse)
 library(tidytext)
 library(SnowballC)
-# this relates to script 0076
 
 #==============larger test=====================
 if(!"docword.nytimes.txt" %in% list.files(path = "data")){
@@ -46,48 +46,18 @@ rm(nyt, nyt2); gc()
 #================testing length of converting and writing to libsvm format=================
 source("R/write-sparse-triplets-svm.R")
 source("R/write-sparse-triplets-svm-benchmark.R")
-nyt_samp <- nyt_M[1:30000, ]
-
-# How long does it take just to create the character vector that needs to be written to disk?
-system.time({
-  nyt_svm <- calc_stm_svm(nyt_samp)
-})
-# Doesn't scale up well:
-# 1000 rows in 1 second
-# 5000 rows in 14  seconds
-# 10000 rows in 59 seconds
-# 20000 rows in 217 seconds 
-# 30000 rows in 475 seconds
+nyt_samp <- nyt_M[1:nrow(nyt_M), ]
 
 # How long does the whole process, including writing to disk, take?
-# Turns out to be basically the same.  So the thing to optimise
+# Note that the thing to optimise
 # is the calc_stm_svm function.
 system.time({
   write_stm_svm(nyt_samp, file = tempfile())
 })
-# 1000 rows in 1 second
-# 5000 rows in 15 seconds
-# 10000 rows in 56 seconds
-# 20000 rows in 209 seconds
-# 30000 rows in 469 seconds
-
-bm <- data.frame(x = c(1,5,10,20,30) * 1000, y = c(1,15,56,209,469))
-ggplot(bm, aes(x = x, y = y)) +geom_line()
-mod1 <- lm(y ~ poly(x, 2), data = bm)
-coef(mod1)
-# Time in hours for a million rows:
-predict(mod1, newdata = data.frame(x = 10 ^ 6))  / 3600
-# Time in days for 50 million rows
-predict(mod1, newdata = data.frame(x = 50 * 10 ^ 6))  / 3600 / 24
-
-#============microbenchmarks when developing new version==========
-nyt_samp <- nyt_M[sample(1:nrow(nyt_M), 1000), ]
-microbenchmark(
-  write_stm_svm(nyt_samp, file = tempfile()),
-  write_stm_svm_bm(nyt_samp, file = tempfile())
-)
-
-
+# 50000 rows in 17 
+# 100000 rows in 36 seconds
+# 200000 rows in 77 seconds
+# 300000 rows in 115 seconds (full dataset!)
 
 dim(nyt_M)
 
