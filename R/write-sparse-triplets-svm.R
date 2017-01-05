@@ -2,20 +2,35 @@
 # Not exported
 # author Peter Ellis
 # returns a character vector of length n=nrow(stm)
-calc_stm_svm <- function(stm, y = rep(1, nrow(stm))){
+#' @import slam
+#' @import foreach
+#' @import doParallel
+calc_stm_svm <- function(stm, y = rep(1, nrow(stm)), parallel = FALSE, num.cores = detectCores()){
   # returns a character vector of length y ready for writing in svm format
-  if(class(stm) != "simple_triplet_matrix"){
+  if(!"simple_triplet_matrix" %in% class(stm)){
     stop("stm must be a simple triple matrix")
   }
   if(!is.vector(y) | nrow(stm) != length(y)){
     stop("y should be a vector of length equal to number of rows of stm")
   }
   n <- length(y)
-  
-  out <- character(n)
-  for(k in 1:n){
-    whichi <- stm$i==k
-    out[k] <- paste(y[k], paste(paste(stm$j[whichi], stm$v[whichi], sep=":"), collapse = " "))
+  if(parallel){
+    cluster <- makeCluster(num.cores) # leave one CPU spare...
+    registerDoParallel(cluster)
+
+    
+        
+    clusterExport(cluster, "stm")
+    out <- foreach(k = 1:n, .combine = c) %dopar% {
+      whichi <- stm$i==k
+      paste(y[k], paste(paste(stm$j[whichi], stm$v[whichi], sep=":"), collapse = " "))
+    }
+    stopCluster(cluster)
+  } else {
+    out <- foreach(k = 1:n, .combine = c) %do% {
+      whichi <- stm$i==k
+      paste(y[k], paste(paste(stm$j[whichi], stm$v[whichi], sep=":"), collapse = " "))
+    }
   }
   return(out)
 }
