@@ -12,12 +12,16 @@ calc_stm_svm <- function(stm, y){
     stop("y should be a vector of length equal to number of rows of stm")
   }
   n <- length(y)
+  i <- stm$i
+  j <- stm$j
+  v <- stm$v
   # Notes, this is the expensive bit.  Here's what we've found so far:
   # Parallelization with foreach and doParallel made no improvement.
   # Changing from for() to sapply made a marginal (3.5%) speed gain.
+  # Defining i, j and v as their own vectors rather than calling them via stm$i, stm$j and stm$v made another 3.5% gain
   out <- sapply(1:n, function(k){
-    whichi <- which(stm$i == k)
-    paste(paste(stm$j[whichi], stm$v[whichi], sep = ":"), collapse = " ")
+    whichi <- which(i == k)
+    paste(paste(j[whichi], v[whichi], sep = ":"), collapse = " ")
   })
   
   out <- paste(y, out)
