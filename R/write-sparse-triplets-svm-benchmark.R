@@ -3,7 +3,7 @@
 # author Peter Ellis
 # returns a character vector of length n=nrow(stm)
 #' @import slam
-calc_stm_svm <- function(stm, y){
+calc_stm_svm_bm <- function(stm, y){
   # returns a character vector of length y ready for writing in svm format
   if(!"simple_triplet_matrix" %in% class(stm)){
     stop("stm must be a simple triple matrix")
@@ -12,15 +12,11 @@ calc_stm_svm <- function(stm, y){
     stop("y should be a vector of length equal to number of rows of stm")
   }
   n <- length(y)
-  # Notes, this is the expensive bit.  Here's what we've found so far:
-  # Parallelization with foreach and doParallel made no improvement.
-  # Changing from for() to sapply made a marginal (3.5%) speed gain.
-  out <- sapply(1:n, function(k){
-    whichi <- which(stm$i == k)
-    paste(paste(stm$j[whichi], stm$v[whichi], sep = ":"), collapse = " ")
-  })
-  
-  out <- paste(y, out)
+  out <- character(n)
+    for(k in 1:n) {
+      whichi <- stm$i==k
+      out[k] <- paste(y[k], paste(paste(stm$j[whichi], stm$v[whichi], sep=":"), collapse = " "))
+  }
   
   return(out)
 }
@@ -32,7 +28,7 @@ calc_stm_svm <- function(stm, y){
 #' @param file file to write to.
 #' @import slam
 #' @author Peter Ellis
-write_stm_svm <- function(stm, y = rep(1, nrow(stm)), file){
-  out <- calc_stm_svm(stm, y)  
+write_stm_svm_bm <- function(stm, y = rep(1, nrow(stm)), file){
+  out <- calc_stm_svm_bm(stm, y)  
   writeLines(out, con = file)
 }

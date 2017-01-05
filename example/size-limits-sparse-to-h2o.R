@@ -44,6 +44,8 @@ nyt_M <- nyt2 %>%
 rm(nyt, nyt2); gc()
 
 #================testing length of converting and writing to libsvm format=================
+source("R/write-sparse-triplets-svm.R")
+source("R/write-sparse-triplets-svm-benchmark.R")
 nyt_samp <- nyt_M[1:30000, ]
 
 # How long does it take just to create the character vector that needs to be written to disk?
@@ -68,6 +70,31 @@ system.time({
 # 10000 rows in 56 seconds
 # 20000 rows in 209 seconds
 # 30000 rows in 469 seconds
+
+bm <- data.frame(x = c(1,5,10,20,30) * 1000, y = c(1,15,56,209,469))
+ggplot(bm, aes(x = x, y = y)) +geom_line()
+mod1 <- lm(y ~ poly(x, 2), data = bm)
+coef(mod1)
+# Time in hours for a million rows:
+predict(mod1, newdata = data.frame(x = 10 ^ 6))  / 3600
+# Time in days for 50 million rows
+predict(mod1, newdata = data.frame(x = 50 * 10 ^ 6))  / 3600 / 24
+
+#============microbenchmarks when developing new version==========
+nyt_samp <- nyt_M[sample(1:nrow(nyt_M), 1000), ]
+microbenchmark(
+  write_stm_svm(nyt_samp, file = tempfile()),
+  write_stm_svm_bm(nyt_samp, file = tempfile())
+)
+
+
+
+
+
+
+
+
+
 
 # Import to H2O
 h2o.init(nthreads = -1, max_mem_size = "10G")

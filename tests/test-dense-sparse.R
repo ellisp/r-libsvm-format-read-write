@@ -25,6 +25,7 @@ expect_equal(dim(read_test), dim(dense))
 # using dense as defined in tests/test_dense_sparse.R
 stm <- as.simple_triplet_matrix(dense[ , -1])
 y <- dense[ ,1]
+calc_stm_svm(stm, y = y)
 
 write_stm_svm(stm, y, "tests/test_stm.txt")
 
